@@ -1,0 +1,94 @@
+<!doctype HTML>
+<html>
+<head>
+    <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
+    <script src="https://raw.githack.com/jeromeetienne/AR.js/master/aframe/build/aframe-ar.min.js"></script>
+    <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <style>
+        #startOverlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: black;
+            color: white;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+<div id="startOverlay">Click to Start</div>
+
+<a-scene embedded arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3; debugUIEnabled: false;">
+    <a-assets>
+        <img src="./assets/drums.png" id="drums"/>
+        <img src="./assets/guitar.png" id="guitar"/>
+        <img src="./assets/mic.png" id="mic"/>
+        <img src="./assets/piano.png" id="piano"/>
+    </a-assets>
+
+    <a-marker type="barcode" value="0" id="drums-marker">
+        <a-image src="#drums"></a-image>
+    </a-marker>
+
+    <a-marker type="barcode" value="1" id="guitar-marker">
+        <a-image src="#guitar"></a-image>
+    </a-marker>
+
+    <a-marker type="barcode" value="2" id="piano-marker">
+        <a-image src="#piano"></a-image>
+    </a-marker>
+
+    <a-marker type="barcode" value="3" id="mic-marker">
+        <a-image src="#mic"></a-image>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+</a-scene>
+
+<script>
+let guitar, drums, mic, piano;
+
+document.getElementById('startOverlay').addEventListener('click', function () {
+    // Create sounds after Click
+    guitar = new Howl({ src: ['./audio/guitar.mp3'], loop: true, volume: 1 });
+    drums = new Howl({ src: ['./audio/drums.mp3'], loop: true, volume: 1 });
+    mic = new Howl({ src: ['./audio/mic.mp3'], loop: true, volume: 1 });
+    piano = new Howl({ src: ['./audio/piano.mp3'], loop: true, volume: 1 });
+
+    // Start all muted
+    guitar.play(); guitar.mute(true);
+    drums.play(); drums.mute(true);
+    mic.play(); mic.mute(true);
+    piano.play(); piano.mute(true);
+
+    setupMarkerEvents();
+    this.style.display = 'none';
+});
+
+function setupMarkerEvents() {
+    const guitarMarker = document.getElementById('guitar-marker');
+    guitarMarker.addEventListener('markerFound', () => guitar.mute(false));
+    guitarMarker.addEventListener('markerLost', () => guitar.mute(true));
+
+    const pianoMarker = document.getElementById('piano-marker');
+    pianoMarker.addEventListener('markerFound', () => piano.mute(false));
+    pianoMarker.addEventListener('markerLost', () => piano.mute(true));
+
+    const drumsMarker = document.getElementById('drums-marker');
+    drumsMarker.addEventListener('markerFound', () => drums.mute(false));
+    drumsMarker.addEventListener('markerLost', () => drums.mute(true));
+
+    const micMarker = document.getElementById('mic-marker');
+    micMarker.addEventListener('markerFound', () => mic.mute(false));
+    micMarker.addEventListener('markerLost', () => mic.mute(true));
+}
+</script>
+</body>
+</html>
